@@ -11,6 +11,18 @@
 </head>
 <body>
 
+<!-- ===================== ПРЕЛОАДЕР ===================== -->
+<div id="preloader">
+  <div class="preloader-inner">
+    <div class="preloader-logo">GAM<span>ERS</span></div>
+    <div class="preloader-scanner">
+      <div class="grid-lines"></div>
+    </div>
+    <div class="preloader-bar-wrap"><div class="preloader-bar" id="preloaderBar"></div></div>
+    <div class="preloader-status">ЗАГРУЗКА СИСТЕМЫ · <span class="pct" id="preloaderPct">0%</span></div>
+  </div>
+</div>
+
 <nav class="nav">
   <div class="container nav-inner">
     <div class="logo">GAM<span>ERS</span></div>
@@ -29,16 +41,17 @@
 </nav>
 
 <header class="hero">
+  <div class="aurora"><span class="b1"></span><span class="b2"></span></div>
   <div class="hero-grid"></div>
   <div class="container hero-inner">
-    <div class="eyebrow">ул. Татищева, 47а, Екатеринбург</div>
-    <h1 class="hero-title">Твоё место <span class="accent">уже освобождается</span></h1>
-    <p class="hero-desc">30 ПК, 4 линейки железа от STANDARD до EPIC-2K, свыше 100 игр в библиотеке и зал, который не закрывается. Бронируй место за 30 секунд — без звонков и ожидания в чате.</p>
-    <div class="hero-cta">
+    <div class="eyebrow reveal">ул. Татищева, 47а, Екатеринбург</div>
+    <h1 class="hero-title reveal">Твоё место <span class="accent">уже освобождается</span></h1>
+    <p class="hero-desc reveal">30 ПК, 4 линейки железа от STANDARD до EPIC-2K, свыше 100 игр в библиотеке и зал, который не закрывается. Бронируй место за 30 секунд — без звонков и ожидания в чате.</p>
+    <div class="hero-cta reveal">
       <a href="#booking" class="btn btn-primary">Забронировать место</a>
       <a href="#categories" class="btn btn-ghost">Смотреть железо</a>
     </div>
-    <div class="hero-stats">
+    <div class="hero-stats reveal-stagger">
       <div><div class="hero-stat-num">30</div><div class="hero-stat-label">Игровых мест</div></div>
       <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Линейки ПК</div></div>
       <div><div class="hero-stat-num">100+</div><div class="hero-stat-label">Игр в клубе</div></div>
@@ -50,31 +63,30 @@
 <!-- ===================== CATEGORIES ===================== -->
 <section class="section" id="categories">
   <div class="container">
-    <div class="eyebrow">Железо</div>
-    <h2 class="section-title">Выбери свой уровень</h2>
-    <p class="section-sub">От бюджетного STANDARD до эксклюзивной 2K-комнаты EPIC-2K — под любую игру и бюджет.</p>
-    <div class="cat-grid" id="catGrid"></div>
+    <div class="eyebrow reveal">Железо</div>
+    <h2 class="section-title reveal">Выбери свой уровень</h2>
+    <p class="section-sub reveal">От бюджетного STANDARD до эксклюзивной 2K-комнаты EPIC-2K — под любую игру и бюджет.</p>
+    <div class="cat-grid reveal-stagger" id="catGrid"></div>
   </div>
 </section>
 
-<!-- ===================== PRICING ===================== -->
+<!-- ===================== PRICING (teaser + modal) ===================== -->
 <section class="section" id="pricing">
+  <div class="aurora"><span class="b2" style="top:10%; right:-10%;"></span></div>
   <div class="container">
-    <div class="eyebrow">Прайс</div>
-    <h2 class="section-title">Тарифы</h2>
-    <p class="section-sub">Цена зависит от дня недели и времени начала сеанса. Чем раньше бронируешь утро — тем дешевле.</p>
+    <div class="eyebrow reveal">Прайс</div>
+    <h2 class="section-title reveal">Тарифы</h2>
+    <p class="section-sub reveal">Цена зависит от дня недели и времени начала сеанса — утром всегда дешевле.</p>
 
-    <div class="tabs" id="priceTabs">
-      <button class="tab active" data-day="weekday">Будни</button>
-      <button class="tab" data-day="weekend">Выходные</button>
+    <div class="pricing-teaser reveal">
+      <div class="pricing-teaser-text">
+        <h3>Полная тарифная сетка</h3>
+        <p>4 категории мест, будни и выходные, тайм-слоты утро/день/вечер/ночь — всё в одном окне.</p>
+      </div>
+      <button type="button" class="btn btn-primary" id="openPricing">Смотреть тарифы</button>
     </div>
 
-    <div class="price-table-wrap">
-      <table class="price-table" id="priceTable"></table>
-    </div>
-    <p class="price-note">Минимальное время сеанса — 1 час, продление — от 30 минут. Тариф выходного дня действует с 18:00 пятницы до 20:00 воскресенья. Праздничный день = тариф выходного дня.</p>
-
-    <div class="promo-banner">
+    <div class="promo-banner reveal">
       <div>
         <h3>Приведи друга — скидка 50% обоим</h3>
         <p>Действует при подписке на группу клуба, если друг у нас ещё не был и время игры совпадает. Акции не суммируются, действуют с 6:00 до 20:00.</p>
@@ -84,26 +96,49 @@
   </div>
 </section>
 
-<!-- ===================== GAMES ===================== -->
+<!-- Модалка с полным прайсом -->
+<div class="modal-overlay" id="pricingModal">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="closePricing">✕</button>
+    <div class="eyebrow">Прайс</div>
+    <h2 class="section-title" style="margin-bottom:20px;">Тарифы</h2>
+    <div class="tabs" id="priceTabs">
+      <button class="tab active" data-day="weekday">Будни</button>
+      <button class="tab" data-day="weekend">Выходные</button>
+    </div>
+    <div class="price-table-wrap">
+      <table class="price-table" id="priceTable"></table>
+    </div>
+    <p class="price-note">Минимальное время сеанса — 1 час, продление — от 30 минут. Тариф выходного дня действует с 18:00 пятницы до 20:00 воскресенья. Праздничный день = тариф выходного дня.</p>
+  </div>
+</div>
+
+<!-- ===================== GAMES (marquee) ===================== -->
 <section class="section section--tight" id="games">
   <div class="container">
-    <div class="eyebrow">Библиотека</div>
-    <h2 class="section-title">100+ игр на любой вкус</h2>
-    <p class="section-sub">Не нашёл нужную игру — администратор установит её по запросу.</p>
+    <div class="eyebrow reveal">Библиотека</div>
+    <h2 class="section-title reveal">100+ игр на любой вкус</h2>
+    <p class="section-sub reveal">Не нашёл нужную игру — администратор установит её по запросу.</p>
     <input type="text" class="games-search" id="gamesSearch" placeholder="Найти игру, например Dota 2...">
-    <div class="games-cloud" id="gamesCloud"></div>
+  </div>
+  <div class="games-marquee-wrap">
+    <div class="games-track" id="gamesTrack"></div>
+  </div>
+  <div class="container">
     <div class="games-count" id="gamesCount"></div>
+    <div class="games-empty" id="gamesEmpty" style="display:none;">Ничего не найдено — попробуй другой запрос.</div>
   </div>
 </section>
 
 <!-- ===================== BOOKING ===================== -->
 <section class="section" id="booking">
+  <div class="aurora"><span class="b1" style="left:30%; top:-10%;"></span></div>
   <div class="container">
-    <div class="eyebrow">Бронь онлайн</div>
-    <h2 class="section-title">Забронировать место</h2>
-    <p class="section-sub">Выбери категорию, дату и время — стоимость посчитается автоматически. После отправки заявки администратор подтвердит бронь в Telegram.</p>
+    <div class="eyebrow reveal">Бронь онлайн</div>
+    <h2 class="section-title reveal">Забронировать место</h2>
+    <p class="section-sub reveal">Выбери категорию, дату и время — стоимость посчитается автоматически. После отправки заявки администратор подтвердит бронь в Telegram.</p>
 
-    <div class="booking-panel">
+    <div class="booking-panel reveal">
       <form id="bookingForm">
         <div class="booking-grid">
           <div>
@@ -168,19 +203,19 @@
 <!-- ===================== RULES ===================== -->
 <section class="section section--tight" id="rules">
   <div class="container">
-    <div class="eyebrow">Важно</div>
-    <h2 class="section-title">Правила клуба</h2>
-    <p class="section-sub">Коротко — полный текст правил ты подтверждаешь при оплате на месте.</p>
-    <div class="accordion" id="rulesAccordion"></div>
+    <div class="eyebrow reveal">Важно</div>
+    <h2 class="section-title reveal">Правила клуба</h2>
+    <p class="section-sub reveal">Коротко — полный текст правил ты подтверждаешь при оплате на месте.</p>
+    <div class="accordion reveal" id="rulesAccordion"></div>
   </div>
 </section>
 
 <!-- ===================== CONTACTS ===================== -->
 <section class="section" id="contacts">
   <div class="container">
-    <div class="eyebrow">Контакты</div>
-    <h2 class="section-title">Как добраться</h2>
-    <div class="contact-grid">
+    <div class="eyebrow reveal">Контакты</div>
+    <h2 class="section-title reveal">Как добраться</h2>
+    <div class="contact-grid reveal">
       <div class="contact-list">
         <div class="contact-item">
           <div class="contact-icon">📍</div>
