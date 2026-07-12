@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAMERS — компьютерный клуб в Екатеринбурге | Бронь онлайн</title>
+<meta name="description" content="Компьютерный клуб GAMERS в Екатеринбурге. 30 ПК, 4 линейки железа, EPIC-2K комната, 100+ игр. Бронируйте место онлайн — без звонков.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="logo">GAM<span>ERS</span></div>
+    <div class="nav-links">
+      <a href="#categories">Компьютеры</a>
+      <a href="#pricing">Тарифы</a>
+      <a href="#games">Игры</a>
+      <a href="#rules">Правила</a>
+      <a href="#contacts">Контакты</a>
+    </div>
+    <div class="nav-cta">
+      <div class="status-pill"><span class="dot"></span> Открыто 24/7</div>
+      <a href="#booking" class="btn btn-primary">Забронировать</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="container hero-inner">
+    <div class="eyebrow">ул. Татищева, 47а, Екатеринбург</div>
+    <h1 class="hero-title">Твоё место <span class="accent">уже освобождается</span></h1>
+    <p class="hero-desc">30 ПК, 4 линейки железа от STANDARD до EPIC-2K, свыше 100 игр в библиотеке и зал, который не закрывается. Бронируй место за 30 секунд — без звонков и ожидания в чате.</p>
+    <div class="hero-cta">
+      <a href="#booking" class="btn btn-primary">Забронировать место</a>
+      <a href="#categories" class="btn btn-ghost">Смотреть железо</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hero-stat-num">30</div><div class="hero-stat-label">Игровых мест</div></div>
+      <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Линейки ПК</div></div>
+      <div><div class="hero-stat-num">100+</div><div class="hero-stat-label">Игр в клубе</div></div>
+      <div><div class="hero-stat-num">24/7</div><div class="hero-stat-label">Без выходных</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== CATEGORIES ===================== -->
+<section class="section" id="categories">
+  <div class="container">
+    <div class="eyebrow">Железо</div>
+    <h2 class="section-title">Выбери свой уровень</h2>
+    <p class="section-sub">От бюджетного STANDARD до эксклюзивной 2K-комнаты EPIC-2K — под любую игру и бюджет.</p>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+</section>
+
+<!-- ===================== PRICING ===================== -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="eyebrow">Прайс</div>
+    <h2 class="section-title">Тарифы</h2>
+    <p class="section-sub">Цена зависит от дня недели и времени начала сеанса. Чем раньше бронируешь утро — тем дешевле.</p>
+
+    <div class="tabs" id="priceTabs">
+      <button class="tab active" data-day="weekday">Будни</button>
+      <button class="tab" data-day="weekend">Выходные</button>
+    </div>
+
+    <div class="price-table-wrap">
+      <table class="price-table" id="priceTable"></table>
+    </div>
+    <p class="price-note">Минимальное время сеанса — 1 час, продление — от 30 минут. Тариф выходного дня действует с 18:00 пятницы до 20:00 воскресенья. Праздничный день = тариф выходного дня.</p>
+
+    <div class="promo-banner">
+      <div>
+        <h3>Приведи друга — скидка 50% обоим</h3>
+        <p>Действует при подписке на группу клуба, если друг у нас ещё не был и время игры совпадает. Акции не суммируются, действуют с 6:00 до 20:00.</p>
+      </div>
+      <a href="#booking" class="btn btn-ghost">Забронировать вдвоём</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== GAMES ===================== -->
+<section class="section section--tight" id="games">
+  <div class="container">
+    <div class="eyebrow">Библиотека</div>
+    <h2 class="section-title">100+ игр на любой вкус</h2>
+    <p class="section-sub">Не нашёл нужную игру — администратор установит её по запросу.</p>
+    <input type="text" class="games-search" id="gamesSearch" placeholder="Найти игру, например Dota 2...">
+    <div class="games-cloud" id="gamesCloud"></div>
+    <div class="games-count" id="gamesCount"></div>
+  </div>
+</section>
+
+<!-- ===================== BOOKING ===================== -->
+<section class="section" id="booking">
+  <div class="container">
+    <div class="eyebrow">Бронь онлайн</div>
+    <h2 class="section-title">Забронировать место</h2>
+    <p class="section-sub">Выбери категорию, дату и время — стоимость посчитается автоматически. После отправки заявки администратор подтвердит бронь в Telegram.</p>
+
+    <div class="booking-panel">
+      <form id="bookingForm">
+        <div class="booking-grid">
+          <div>
+            <div class="field-group">
+              <label class="field-label">Категория места</label>
+              <div class="pill-row" id="catPills"></div>
+            </div>
+
+            <div class="field-group" style="display:flex; gap:16px;">
+              <div style="flex:1;">
+                <label class="field-label">Дата</label>
+                <input type="date" id="bookingDate" required>
+              </div>
+              <div style="flex:1;">
+                <label class="field-label">Время начала</label>
+                <input type="time" id="bookingTime" required value="18:00">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Длительность</label>
+              <div class="pill-row" id="durationPills"></div>
+            </div>
+
+            <div class="field-group" style="display:flex; gap:16px;">
+              <div style="flex:1;">
+                <label class="field-label">Имя</label>
+                <input type="text" id="bookingName" placeholder="Как к тебе обращаться" required>
+              </div>
+              <div style="flex:1;">
+                <label class="field-label">Телефон или Telegram</label>
+                <input type="text" id="bookingContact" placeholder="+7 999 000-00-00 или @nick" required>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Комментарий (необязательно)</label>
+              <textarea id="bookingComment" placeholder="Например: хочу за соседние места с другом"></textarea>
+            </div>
+          </div>
+
+          <div>
+            <div class="summary-box">
+              <div class="summary-row"><span>Категория</span><span id="sumCategory">—</span></div>
+              <div class="summary-row"><span>Дата и время</span><span id="sumDateTime">—</span></div>
+              <div class="summary-row"><span>Длительность</span><span id="sumDuration">—</span></div>
+              <div class="summary-row"><span>Тариф</span><span id="sumTariff">—</span></div>
+              <div class="summary-total">
+                <span class="summary-total-label">Итого</span>
+                <span class="summary-total-num mono" id="sumTotal">0 ₽</span>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Отправить заявку</button>
+              <div class="form-msg" id="formMsg"></div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RULES ===================== -->
+<section class="section section--tight" id="rules">
+  <div class="container">
+    <div class="eyebrow">Важно</div>
+    <h2 class="section-title">Правила клуба</h2>
+    <p class="section-sub">Коротко — полный текст правил ты подтверждаешь при оплате на месте.</p>
+    <div class="accordion" id="rulesAccordion"></div>
+  </div>
+</section>
+
+<!-- ===================== CONTACTS ===================== -->
+<section class="section" id="contacts">
+  <div class="container">
+    <div class="eyebrow">Контакты</div>
+    <h2 class="section-title">Как добраться</h2>
+    <div class="contact-grid">
+      <div class="contact-list">
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div><div class="contact-label">Адрес</div><div class="contact-value">ул. Татищева, 47а, Екатеринбург</div></div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">☎</div>
+          <div><div class="contact-label">Телефон</div><div class="contact-value">+7 982 707-26-84</div></div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✈</div>
+          <div><div class="contact-label">Telegram админа</div><div class="contact-value">@dixizee</div></div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🕑</div>
+          <div><div class="contact-label">Режим работы</div><div class="contact-value">Круглосуточно, без выходных</div></div>
+        </div>
+        <a href="#booking" class="btn btn-primary" style="margin-top:8px; align-self:flex-start;">Забронировать место</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-inner">
+    <div class="logo">GAM<span>ERS</span></div>
+    <div class="footer-links">
+      <a href="#categories">Компьютеры</a>
+      <a href="#pricing">Тарифы</a>
+      <a href="#rules">Правила</a>
+      <a href="#contacts">Контакты</a>
+    </div>
+    <div class="footer-copy">© 2026 GAMERS · ул. Татищева, 47а, Екатеринбург</div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
