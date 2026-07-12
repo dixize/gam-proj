@@ -111,6 +111,57 @@ const RULES_SECTIONS = [
   ]}
 ];
 
+// ===================== ПРЕЛОАДЕР =====================
+function initPreloader() {
+  const el = document.getElementById('preloader');
+  const bar = document.getElementById('preloaderBar');
+  const pct = document.getElementById('preloaderPct');
+  if (!el) return;
+
+  document.body.style.overflow = 'hidden';
+  let progress = 0;
+  const tick = () => {
+    progress += (100 - progress) * 0.12 + 1.5;
+    if (progress >= 100) progress = 100;
+    bar.style.width = progress + '%';
+    pct.textContent = Math.round(progress) + '%';
+    if (progress < 100) {
+      requestAnimationFrame(tick);
+    } else {
+      setTimeout(() => {
+        el.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 250);
+    }
+  };
+  // стартуем чуть позже, чтобы шрифты/контент успели подготовиться
+  setTimeout(() => requestAnimationFrame(tick), 300);
+
+  // страховка: если что-то пошло не так, не даём прелоадеру зависнуть навсегда
+  setTimeout(() => {
+    el.classList.add('hidden');
+    document.body.style.overflow = '';
+  }, 4000);
+}
+
+// ===================== SCROLL REVEAL =====================
+function initScrollReveal() {
+  const targets = document.querySelectorAll('.reveal, .reveal-stagger');
+  if (!('IntersectionObserver' in window) || !targets.length) {
+    targets.forEach(t => t.classList.add('in-view'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  targets.forEach(t => io.observe(t));
+}
+
 // ===================== РАСЧЁТ ЦЕНЫ =====================
 function getDayType(date) {
   const d = new Date(date);
@@ -205,27 +256,69 @@ function initPriceTabs() {
   renderPriceTable('weekday');
 }
 
-// ===================== ИГРЫ =====================
-function renderGames() {
-  const cloud = document.getElementById('gamesCloud');
+// ===================== МОДАЛКА ТАРИФОВ =====================
+function initPricingModal() {
+  const openBtn = document.getElementById('openPricing');
+  const closeBtn = document.getElementById('closePricing');
+  const overlay = document.getElementById('pricingModal');
+  if (!openBtn || !overlay) return;
+
+  const open = () => { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
+  const close = () => { overlay.classList.remove('open'); document.body.style.overflow = ''; };
+
+  openBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+}
+
+// ===================== ИГРЫ (бегущая строка) =====================
+function renderGamesMarquee(filterQuery) {
+  const track = document.getElementById('gamesTrack');
+  const wrap = track ? track.parentElement : null;
   const count = document.getElementById('gamesCount');
+  const empty = document.getElementById('gamesEmpty');
+  if (!track) return;
+
+  const q = (filterQuery || '').trim().toLowerCase();
+  const list = q ? GAMES.filter(g => g.toLowerCase().includes(q)) : GAMES;
+
+  if (!list.length) {
+    track.innerHTML = '';
+    track.style.animation = 'none';
+    wrap.style.display = 'none';
+    empty.style.display = 'block';
+    count.textContent = '';
+    return;
+  }
+  wrap.style.display = '';
+  empty.style.display = 'none';
+
+  // дублируем список, чтобы бегущая строка была бесшовной
+  const tagsHtml = list.map(g => `<span class="game-tag${q ? ' match' : ''}">${g}</span>`).join('');
+  track.innerHTML = tagsHtml + tagsHtml;
+
+  // скорость пропорциональна длине контента — чтобы не "летало" при малом числе тегов
+  const duration = Math.max(18, list.length * 1.6);
+  track.style.animation = `marquee ${duration}s linear infinite`;
+
+  count.textContent = q
+    ? `Найдено: ${list.length} из ${GAMES.length}`
+    : `Всего игр: ${GAMES.length}. Своей игры нет? Администратор установит по запросу.`;
+}
+
+function initGames() {
   const search = document.getElementById('gamesSearch');
-  if (!cloud) return;
-  cloud.innerHTML = GAMES.map(g => `<span class="game-tag">${g}</span>`).join('');
-  const update = () => {
-    const q = search.value.trim().toLowerCase();
-    const tags = cloud.querySelectorAll('.game-tag');
-    let visible = 0;
-    tags.forEach(tag => {
-      const match = tag.textContent.toLowerCase().includes(q);
-      tag.classList.toggle('hidden', q.length > 0 && !match);
-      tag.classList.toggle('match', q.length > 0 && match);
-      if (!q || match) visible++;
-    });
-    count.textContent = q ? `Найдено: ${visible} из ${GAMES.length}` : `Всего игр: ${GAMES.length}. Своей игры нет? Администратор установит по запросу.`;
-  };
-  search.addEventListener('input', update);
-  update();
+  const track = document.getElementById('gamesTrack');
+  if (!search || !track) return;
+
+  renderGamesMarquee('');
+  search.addEventListener('input', () => renderGamesMarquee(search.value));
+
+  // пауза при наведении, чтобы можно было прочитать/кликнуть
+  const wrap = track.parentElement;
+  wrap.addEventListener('mouseenter', () => track.classList.add('paused'));
+  wrap.addEventListener('mouseleave', () => track.classList.remove('paused'));
 }
 
 // ===================== ПРАВИЛА =====================
@@ -377,14 +470,20 @@ function initBookingForm() {
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) throw new Error('bad status');
+      let data = null;
+      try { data = await res.json(); } catch {}
+
+      if (!res.ok) {
+        const serverMsg = data && data.error ? data.error : `Сервер ответил ошибкой (${res.status})`;
+        throw new Error(serverMsg);
+      }
 
       showFormMsg("Заявка отправлена! Администратор подтвердит бронь в Telegram в ближайшее время.", "ok");
       form.reset();
       dateInput.value = today.toISOString().split('T')[0];
       updateSummary();
     } catch (err) {
-      showFormMsg("Не удалось отправить заявку. Позвони +7 982 707-26-84 или напиши @dixizee в Telegram.", "err");
+      showFormMsg(err.message || "Не удалось отправить заявку. Позвони +7 982 707-26-84 или напиши @dixizee в Telegram.", "err");
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Отправить заявку";
@@ -393,12 +492,15 @@ function initBookingForm() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initPreloader();
   renderCategories();
   initPriceTabs();
-  renderGames();
+  initPricingModal();
+  initGames();
   renderRules();
   renderCategoryPills();
   renderDurationPills();
   initBookingForm();
   updateSummary();
+  initScrollReveal();
 });
