@@ -15,9 +15,7 @@
 <div id="preloader">
   <div class="preloader-inner">
     <div class="preloader-logo">GAM<span>ERS</span></div>
-    <div class="preloader-scanner">
-      <div class="grid-lines"></div>
-    </div>
+    <div class="preloader-scanner"><div class="grid-lines"></div></div>
     <div class="preloader-bar-wrap"><div class="preloader-bar" id="preloaderBar"></div></div>
     <div class="preloader-status">ЗАГРУЗКА СИСТЕМЫ · <span class="pct" id="preloaderPct">0%</span></div>
   </div>
@@ -30,31 +28,44 @@
       <a href="#categories">Компьютеры</a>
       <a href="#pricing">Тарифы</a>
       <a href="#games">Игры</a>
+      <a href="#booking">Бронь</a>
       <a href="#rules">Правила</a>
       <a href="#contacts">Контакты</a>
     </div>
     <div class="nav-cta">
       <div class="status-pill"><span class="dot"></span> Открыто 24/7</div>
-      <a href="#booking" class="btn btn-primary">Забронировать</a>
     </div>
+    <button type="button" class="nav-toggle" id="navToggle" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="#categories">Компьютеры</a>
+  <a href="#pricing">Тарифы</a>
+  <a href="#games">Игры</a>
+  <a href="#booking">Бронь</a>
+  <a href="#rules">Правила</a>
+  <a href="#contacts">Контакты</a>
+  <a href="#booking" class="btn btn-primary btn-block">Забронировать место</a>
+</div>
 
 <header class="hero">
   <div class="aurora"><span class="b1"></span><span class="b2"></span></div>
   <div class="hero-grid"></div>
   <div class="container hero-inner">
     <div class="eyebrow reveal">ул. Татищева, 47а, Екатеринбург</div>
-    <h1 class="hero-title reveal">Твоё место <span class="accent">уже освобождается</span></h1>
-    <p class="hero-desc reveal">30 ПК, 4 линейки железа от STANDARD до EPIC-2K, свыше 100 игр в библиотеке и зал, который не закрывается. Бронируй место за 30 секунд — без звонков и ожидания в чате.</p>
+    <h1 class="hero-title reveal">Твоё место <span class="accent">уже ждёт тебя</span></h1>
+    <p class="hero-desc reveal">30 ПК, 4 линейки железа от STANDARD до EPIC-2K, свыше <span id="heroGamesCount">75</span> игр в библиотеке и зал, который не закрывается. Бронируй место за 30 секунд — без звонков и ожидания в чате.</p>
     <div class="hero-cta reveal">
       <a href="#booking" class="btn btn-primary">Забронировать место</a>
       <a href="#categories" class="btn btn-ghost">Смотреть железо</a>
     </div>
     <div class="hero-stats reveal-stagger">
-      <div><div class="hero-stat-num">30</div><div class="hero-stat-label">Игровых мест</div></div>
-      <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Линейки ПК</div></div>
-      <div><div class="hero-stat-num">100+</div><div class="hero-stat-label">Игр в клубе</div></div>
+      <div><div class="hero-stat-num" data-count="30">0</div><div class="hero-stat-label">Игровых мест</div></div>
+      <div><div class="hero-stat-num" data-count="4">0</div><div class="hero-stat-label">Линейки ПК</div></div>
+      <div><div class="hero-stat-num" data-count-id="gamesStat" data-count="0">0</div><div class="hero-stat-label">Игр в клубе</div></div>
       <div><div class="hero-stat-num">24/7</div><div class="hero-stat-label">Без выходных</div></div>
     </div>
   </div>
@@ -65,7 +76,7 @@
   <div class="container">
     <div class="eyebrow reveal">Железо</div>
     <h2 class="section-title reveal">Выбери свой уровень</h2>
-    <p class="section-sub reveal">От бюджетного STANDARD до эксклюзивной 2K-комнаты EPIC-2K — под любую игру и бюджет.</p>
+    <p class="section-sub reveal">От бюджетного STANDARD до эксклюзивной 2K-комнаты EPIC-2K — под любую игру и бюджет. На телефоне карточки можно листать пальцем.</p>
     <div class="cat-grid reveal-stagger" id="catGrid"></div>
   </div>
 </section>
@@ -96,7 +107,6 @@
   </div>
 </section>
 
-<!-- Модалка с полным прайсом -->
 <div class="modal-overlay" id="pricingModal">
   <div class="modal-box">
     <button type="button" class="modal-close" id="closePricing">✕</button>
@@ -117,11 +127,11 @@
 <section class="section section--tight" id="games">
   <div class="container">
     <div class="eyebrow reveal">Библиотека</div>
-    <h2 class="section-title reveal">100+ игр на любой вкус</h2>
+    <h2 class="section-title reveal"><span id="gamesTitleCount">75</span>+ игр на любой вкус</h2>
     <p class="section-sub reveal">Не нашёл нужную игру — администратор установит её по запросу.</p>
     <input type="text" class="games-search" id="gamesSearch" placeholder="Найти игру, например Dota 2...">
   </div>
-  <div class="games-marquee-wrap">
+  <div class="games-marquee-wrap" id="gamesMarqueeWrap">
     <div class="games-track" id="gamesTrack"></div>
   </div>
   <div class="container">
@@ -136,7 +146,7 @@
   <div class="container">
     <div class="eyebrow reveal">Бронь онлайн</div>
     <h2 class="section-title reveal">Забронировать место</h2>
-    <p class="section-sub reveal">Выбери категорию, дату и время — стоимость посчитается автоматически. После отправки заявки администратор подтвердит бронь в Telegram.</p>
+    <p class="section-sub reveal">Выбери категорию, дату и время — стоимость посчитается автоматически. Бронируешь компанией — укажи количество мест.</p>
 
     <div class="booking-panel reveal">
       <form id="bookingForm">
@@ -147,7 +157,17 @@
               <div class="pill-row" id="catPills"></div>
             </div>
 
-            <div class="field-group" style="display:flex; gap:16px;">
+            <div class="field-group">
+              <label class="field-label">Количество мест</label>
+              <div class="stepper">
+                <button type="button" id="peopleMinus">−</button>
+                <span class="stepper-val" id="peopleVal">1</span>
+                <button type="button" id="peoplePlus">+</button>
+              </div>
+              <div class="stepper-hint" id="peopleHint">1 место — для игры в одиночку, больше — если бронируешь компанией</div>
+            </div>
+
+            <div class="field-group field-row">
               <div style="flex:1;">
                 <label class="field-label">Дата</label>
                 <input type="date" id="bookingDate" required>
@@ -163,7 +183,7 @@
               <div class="pill-row" id="durationPills"></div>
             </div>
 
-            <div class="field-group" style="display:flex; gap:16px;">
+            <div class="field-group field-row">
               <div style="flex:1;">
                 <label class="field-label">Имя</label>
                 <input type="text" id="bookingName" placeholder="Как к тебе обращаться" required>
@@ -176,16 +196,17 @@
 
             <div class="field-group">
               <label class="field-label">Комментарий (необязательно)</label>
-              <textarea id="bookingComment" placeholder="Например: хочу за соседние места с другом"></textarea>
+              <textarea id="bookingComment" placeholder="Например: имена друзей, за соседние места"></textarea>
             </div>
           </div>
 
           <div>
             <div class="summary-box">
               <div class="summary-row"><span>Категория</span><span id="sumCategory">—</span></div>
+              <div class="summary-row"><span>Количество мест</span><span id="sumPeople">1</span></div>
               <div class="summary-row"><span>Дата и время</span><span id="sumDateTime">—</span></div>
               <div class="summary-row"><span>Длительность</span><span id="sumDuration">—</span></div>
-              <div class="summary-row"><span>Тариф</span><span id="sumTariff">—</span></div>
+              <div class="summary-row"><span>Тариф за место</span><span id="sumTariff">—</span></div>
               <div class="summary-total">
                 <span class="summary-total-label">Итого</span>
                 <span class="summary-total-num mono" id="sumTotal">0 ₽</span>
@@ -233,7 +254,10 @@
           <div class="contact-icon">🕑</div>
           <div><div class="contact-label">Режим работы</div><div class="contact-value">Круглосуточно, без выходных</div></div>
         </div>
-        <a href="#booking" class="btn btn-primary" style="margin-top:8px; align-self:flex-start;">Забронировать место</a>
+        <div class="contact-actions">
+          <a href="https://yandex.ru/maps/54/yekaterinburg/?ll=60.569510%2C56.834693&mode=whatshere&whatshere%5Bpoint%5D=60.568159%2C56.834747&whatshere%5Bzoom%5D=16&z=17.12" target="_blank" rel="noopener" class="btn btn-ghost">Открыть на Яндекс.Картах</a>
+          <a href="#booking" class="btn btn-primary">Забронировать место</a>
+        </div>
       </div>
     </div>
   </div>
