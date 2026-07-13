@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   }
   body = body || {};
 
-  const { category, date, dateLabel, duration, price, dayType, name, contact, comment } = body;
+  const { category, people, date, dateLabel, duration, price, pricePerSeat, dayType, name, contact, comment } = body;
 
   if (!category || !date || !duration || !name || !contact) {
     return res.status(400).json({ error: 'Не хватает обязательных полей' });
@@ -47,12 +47,16 @@ export default async function handler(req, res) {
     });
   }
 
+  const peopleCount = Number(people) || 1;
+
   const text =
     `🎮 *Новая бронь GAMERS*\n\n` +
     `Категория: *${escapeMd(category)}*\n` +
+    `Количество мест: ${escapeMd(String(peopleCount))}${peopleCount > 1 ? ' (бронь компанией)' : ''}\n` +
     `Дата и время: ${escapeMd(dateLabel || date)}\n` +
     `Длительность: ${escapeMd(duration)}\n` +
-    `Тариф: ${dayType === 'weekend' ? 'выходной' : 'будни'}${price ? `, ${price} ₽` : ''}\n\n` +
+    `Тариф: ${dayType === 'weekend' ? 'выходной' : 'будни'}${pricePerSeat ? `, ${pricePerSeat} ₽/место` : ''}\n` +
+    `Итого: *${price ? `${price} ₽` : '—'}*\n\n` +
     `Имя: ${escapeMd(name)}\n` +
     `Контакт: ${escapeMd(contact)}\n` +
     (comment ? `Комментарий: ${escapeMd(comment)}\n` : '');
