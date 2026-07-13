@@ -8,9 +8,6 @@
 //
 // ДИАГНОСТИКА: открой в браузере /api/send-telegram (обычный GET-переход по ссылке) —
 // функция ответит JSON-ом, настроены ли переменные окружения, без раскрытия их значений.
-// Если видишь telegramConfigured: false — значит переменные не долетели до функции
-// (проверь: сохранены именно в Production/тот env, куда задеплоено; после добавления
-// переменных нужен redeploy — они не подхватываются "на лету" в уже собранный деплой).
 
 export default async function handler(req, res) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -49,17 +46,20 @@ export default async function handler(req, res) {
 
   const peopleCount = Number(people) || 1;
 
+  // Используем parse_mode HTML вместо MarkdownV2: у HTML всего 3 символа,
+  // которые обязательно нужно экранировать (& < >), а не полтора десятка,
+  // как в MarkdownV2 — гораздо меньше риск сломать сообщение будущими правками текста.
   const text =
-    `🎮 *Новая бронь GAMERS*\n\n` +
-    `Категория: *${escapeMd(category)}*\n` +
-    `Количество мест: ${escapeMd(String(peopleCount))}${peopleCount > 1 ? ' (бронь компанией)' : ''}\n` +
-    `Дата и время: ${escapeMd(dateLabel || date)}\n` +
-    `Длительность: ${escapeMd(duration)}\n` +
+    `🎮 <b>Новая бронь GAMERS</b>\n\n` +
+    `Категория: <b>${escapeHtml(category)}</b>\n` +
+    `Количество мест: ${escapeHtml(String(peopleCount))}${peopleCount > 1 ? ' — бронь компанией' : ''}\n` +
+    `Дата и время: ${escapeHtml(dateLabel || date)}\n` +
+    `Длительность: ${escapeHtml(duration)}\n` +
     `Тариф: ${dayType === 'weekend' ? 'выходной' : 'будни'}${pricePerSeat ? `, ${pricePerSeat} ₽/место` : ''}\n` +
-    `Итого: *${price ? `${price} ₽` : '—'}*\n\n` +
-    `Имя: ${escapeMd(name)}\n` +
-    `Контакт: ${escapeMd(contact)}\n` +
-    (comment ? `Комментарий: ${escapeMd(comment)}\n` : '');
+    `Итого: <b>${price ? `${price} ₽` : '—'}</b>\n\n` +
+    `Имя: ${escapeHtml(name)}\n` +
+    `Контакт: ${escapeHtml(contact)}\n` +
+    (comment ? `Комментарий: ${escapeHtml(comment)}\n` : '');
 
   try {
     const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         chat_id: chatId,
         text,
-        parse_mode: 'MarkdownV2'
+        parse_mode: 'HTML'
       })
     });
 
@@ -88,6 +88,9 @@ export default async function handler(req, res) {
   }
 }
 
-function escapeMd(str) {
-  return String(str).replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
