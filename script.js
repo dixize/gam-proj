@@ -134,27 +134,57 @@ function initPreloader() {
       }, 250);
     }
   };
-  // стартуем чуть позже, чтобы шрифты/контент успели подготовиться
   setTimeout(() => requestAnimationFrame(tick), 300);
-
-  // страховка: если что-то пошло не так, не даём прелоадеру зависнуть навсегда
   setTimeout(() => {
     el.classList.add('hidden');
     document.body.style.overflow = '';
   }, 4000);
 }
 
-// ===================== SCROLL REVEAL =====================
+// ===================== БУРГЕР-МЕНЮ =====================
+function initMobileNav() {
+  const toggle = document.getElementById('navToggle');
+  const panel = document.getElementById('mobileNav');
+  if (!toggle || !panel) return;
+
+  const close = () => { toggle.classList.remove('open'); panel.classList.remove('open'); document.body.style.overflow = ''; };
+  const open = () => { toggle.classList.add('open'); panel.classList.add('open'); document.body.style.overflow = 'hidden'; };
+
+  toggle.addEventListener('click', () => {
+    toggle.classList.contains('open') ? close() : open();
+  });
+  panel.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+}
+
+// ===================== SCROLL REVEAL + COUNT-UP =====================
+function animateCountUp(el) {
+  const target = Number(el.dataset.count);
+  if (!target && target !== 0) return;
+  const duration = 1100;
+  const start = performance.now();
+  const from = 0;
+  function frame(now) {
+    const p = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+    el.textContent = Math.round(from + (target - from) * eased);
+    if (p < 1) requestAnimationFrame(frame);
+    else el.textContent = target;
+  }
+  requestAnimationFrame(frame);
+}
+
 function initScrollReveal() {
   const targets = document.querySelectorAll('.reveal, .reveal-stagger');
   if (!('IntersectionObserver' in window) || !targets.length) {
     targets.forEach(t => t.classList.add('in-view'));
+    document.querySelectorAll('.hero-stat-num[data-count]').forEach(animateCountUp);
     return;
   }
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('in-view');
+        entry.target.querySelectorAll('.hero-stat-num[data-count]').forEach(animateCountUp);
         io.unobserve(entry.target);
       }
     });
@@ -275,7 +305,7 @@ function initPricingModal() {
 // ===================== ИГРЫ (бегущая строка) =====================
 function renderGamesMarquee(filterQuery) {
   const track = document.getElementById('gamesTrack');
-  const wrap = track ? track.parentElement : null;
+  const wrap = document.getElementById('gamesMarqueeWrap');
   const count = document.getElementById('gamesCount');
   const empty = document.getElementById('gamesEmpty');
   if (!track) return;
@@ -285,7 +315,6 @@ function renderGamesMarquee(filterQuery) {
 
   if (!list.length) {
     track.innerHTML = '';
-    track.style.animation = 'none';
     wrap.style.display = 'none';
     empty.style.display = 'block';
     count.textContent = '';
@@ -294,13 +323,20 @@ function renderGamesMarquee(filterQuery) {
   wrap.style.display = '';
   empty.style.display = 'none';
 
-  // дублируем список, чтобы бегущая строка была бесшовной
-  const tagsHtml = list.map(g => `<span class="game-tag${q ? ' match' : ''}">${g}</span>`).join('');
-  track.innerHTML = tagsHtml + tagsHtml;
-
-  // скорость пропорциональна длине контента — чтобы не "летало" при малом числе тегов
-  const duration = Math.max(18, list.length * 1.6);
-  track.style.animation = `marquee ${duration}s linear infinite`;
+  if (q) {
+    // При поиске: бегущая строка останавливается, найденные теги центрируются статично —
+    // так совпадение не "убегает" за левый край экрана.
+    wrap.classList.add('static-mode');
+    track.classList.add('static');
+    track.innerHTML = list.map(g => `<span class="game-tag match">${g}</span>`).join('');
+  } else {
+    wrap.classList.remove('static-mode');
+    track.classList.remove('static');
+    const tagsHtml = list.map(g => `<span class="game-tag">${g}</span>`).join('');
+    track.innerHTML = tagsHtml + tagsHtml; // дублируем для бесшовного лупа
+    const duration = Math.max(24, list.length * 1.4);
+    track.style.animation = `marquee ${duration}s linear infinite`;
+  }
 
   count.textContent = q
     ? `Найдено: ${list.length} из ${GAMES.length}`
@@ -310,13 +346,20 @@ function renderGamesMarquee(filterQuery) {
 function initGames() {
   const search = document.getElementById('gamesSearch');
   const track = document.getElementById('gamesTrack');
+  const wrap = document.getElementById('gamesMarqueeWrap');
   if (!search || !track) return;
+
+  // Подставляем реальное количество игр везде, где раньше было захардкожено "100+"
+  const heroCount = document.getElementById('heroGamesCount');
+  const titleCount = document.getElementById('gamesTitleCount');
+  const statEl = document.querySelector('[data-count-id="gamesStat"]');
+  if (heroCount) heroCount.textContent = GAMES.length;
+  if (titleCount) titleCount.textContent = GAMES.length;
+  if (statEl) statEl.dataset.count = GAMES.length;
 
   renderGamesMarquee('');
   search.addEventListener('input', () => renderGamesMarquee(search.value));
 
-  // пауза при наведении, чтобы можно было прочитать/кликнуть
-  const wrap = track.parentElement;
   wrap.addEventListener('mouseenter', () => track.classList.add('paused'));
   wrap.addEventListener('mouseleave', () => track.classList.remove('paused'));
 }
@@ -343,7 +386,7 @@ function renderRules() {
 }
 
 // ===================== БРОНИРОВАНИЕ =====================
-const bookingState = { category: "STANDARD", duration: "hour" };
+const bookingState = { category: "STANDARD", duration: "hour", people: 1 };
 
 function renderCategoryPills() {
   const wrap = document.getElementById('catPills');
@@ -354,8 +397,11 @@ function renderCategoryPills() {
   wrap.querySelectorAll('.pill-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       bookingState.category = btn.dataset.cat;
+      const maxSeats = CATEGORIES[bookingState.category].seats;
+      if (bookingState.people > maxSeats) bookingState.people = maxSeats;
       wrap.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      updatePeopleUI();
       updateSummary();
     });
   });
@@ -377,6 +423,38 @@ function renderDurationPills() {
   });
 }
 
+function updatePeopleUI() {
+  const val = document.getElementById('peopleVal');
+  const hint = document.getElementById('peopleHint');
+  const maxSeats = CATEGORIES[bookingState.category].seats;
+  val.textContent = bookingState.people;
+  hint.textContent = bookingState.people === 1
+    ? "1 место — для игры в одиночку, больше — если бронируешь компанией"
+    : `Забронируем ${bookingState.people} соседних мест в категории ${bookingState.category} (доступно до ${maxSeats})`;
+}
+
+function initPeopleStepper() {
+  const minus = document.getElementById('peopleMinus');
+  const plus = document.getElementById('peoplePlus');
+  if (!minus || !plus) return;
+  minus.addEventListener('click', () => {
+    if (bookingState.people > 1) {
+      bookingState.people--;
+      updatePeopleUI();
+      updateSummary();
+    }
+  });
+  plus.addEventListener('click', () => {
+    const maxSeats = CATEGORIES[bookingState.category].seats;
+    if (bookingState.people < maxSeats) {
+      bookingState.people++;
+      updatePeopleUI();
+      updateSummary();
+    }
+  });
+  updatePeopleUI();
+}
+
 function getSelectedDateTime() {
   const dateVal = document.getElementById('bookingDate').value;
   const timeVal = document.getElementById('bookingTime').value || "18:00";
@@ -390,6 +468,7 @@ function updateSummary() {
 
   document.getElementById('sumCategory').textContent = bookingState.category;
   document.getElementById('sumDuration').textContent = durLabel;
+  document.getElementById('sumPeople').textContent = bookingState.people;
 
   if (!dt || isNaN(dt.getTime())) {
     document.getElementById('sumDateTime').textContent = "—";
@@ -403,8 +482,9 @@ function updateSummary() {
   const timeStr = dt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
   document.getElementById('sumDateTime').textContent = `${dateStr}, ${timeStr}`;
-  document.getElementById('sumTariff').textContent = result ? `${result.dayType === 'weekend' ? 'Выходной' : 'Будни'} · ${result.windowLabel}` : "—";
-  document.getElementById('sumTotal').textContent = result ? `${result.price} ₽` : "0 ₽";
+  document.getElementById('sumTariff').textContent = result ? `${result.dayType === 'weekend' ? 'Выходной' : 'Будни'} · ${result.windowLabel} · ${result.price} ₽` : "—";
+  const total = result ? result.price * bookingState.people : 0;
+  document.getElementById('sumTotal').textContent = `${total} ₽`;
 }
 
 function showFormMsg(text, type) {
@@ -446,13 +526,16 @@ function initBookingForm() {
 
     const result = calcPrice(bookingState.category, bookingState.duration, dt);
     const durLabel = DURATIONS.find(d => d.key === bookingState.duration)?.label || "";
+    const totalPrice = result ? result.price * bookingState.people : null;
 
     const payload = {
       category: bookingState.category,
+      people: bookingState.people,
       date: dt.toISOString(),
       dateLabel: dt.toLocaleDateString('ru-RU') + " " + dt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
       duration: durLabel,
-      price: result ? result.price : null,
+      pricePerSeat: result ? result.price : null,
+      price: totalPrice,
       dayType: result ? result.dayType : null,
       name,
       contact,
@@ -481,6 +564,8 @@ function initBookingForm() {
       showFormMsg("Заявка отправлена! Администратор подтвердит бронь в Telegram в ближайшее время.", "ok");
       form.reset();
       dateInput.value = today.toISOString().split('T')[0];
+      bookingState.people = 1;
+      updatePeopleUI();
       updateSummary();
     } catch (err) {
       showFormMsg(err.message || "Не удалось отправить заявку. Позвони +7 982 707-26-84 или напиши @dixizee в Telegram.", "err");
@@ -493,6 +578,7 @@ function initBookingForm() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initPreloader();
+  initMobileNav();
   renderCategories();
   initPriceTabs();
   initPricingModal();
@@ -500,6 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRules();
   renderCategoryPills();
   renderDurationPills();
+  initPeopleStepper();
   initBookingForm();
   updateSummary();
   initScrollReveal();
